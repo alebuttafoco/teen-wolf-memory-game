@@ -314,19 +314,29 @@ header {
 }
 
 //INTRO EFFECT
-.intro img{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    visibility: hidden;
-
+.intro{
     animation: intro 2s ease-in;
     @keyframes intro {
         60%{opacity: 1; visibility: visible;}
         to{opacity: 0;}
     }
+    background: rgba(0, 0, 0, 0.87);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.intro img{
+    width: 70%;
+    height: 70%;
+    object-fit: cover;
+    border-radius: 15px;
 }
 </style>
