@@ -1,24 +1,7 @@
-# frontend_vue_cli
+Per sperimentazione personale ho realizzato MEMORY, il famoso gioco di carte.
+Mi sono ispirato ad una nota serie TV che ho seguito qualche anno fa, Teen Wolf.
+Per realizzare questo progetto ho utilizzato Vue CLI e Bootstrap 5.
 
-## Project setup
-```
-npm install
-```
+Questo il link per provare a giocare 👇
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## https://alebuttafoco-memory-teenwolf.netlify.app/
