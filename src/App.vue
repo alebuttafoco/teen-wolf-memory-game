@@ -3,18 +3,21 @@
     <header class="px-5">
         <nav class="d-flex justify-content-between align-items-center">
             <a class="navbar-brand text-danger" href="/"><img width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/TeenWolfLogo.png/280px-TeenWolfLogo.png" alt=""></a>
-
-            <div class="btn">
-                <span class="btn btn-secondary dropdown-toggle" id="dropdownDifficult" data-bs-toggle="dropdown">
-                    Scegli difficolta'
-                </span>
-                <ul class="dropdown-menu text-center" aria-labelledby="dropdownDifficult">
-                    <li><span @click="difficult = 6, startGame()" class="dropdown-item">Facile</span></li>
-                    <li><span @click="difficult = 12, startGame()" class="dropdown-item">Media</span></li>
-                    <li><span @click="difficult = 18, startGame()" class="dropdown-item">Difficile</span></li>
-                </ul>
+            <div>
+                <!-- scegli difficolta' -->
+                <div class="btn">
+                    <span class="btn btn-secondary dropdown-toggle" id="dropdownDifficult" data-bs-toggle="dropdown">
+                        Scegli difficolta'
+                    </span>
+                    <ul class="dropdown-menu text-center" aria-labelledby="dropdownDifficult">
+                        <li><span @click="difficult = 6, startGame()" class="dropdown-item">Facile</span></li>
+                        <li><span @click="difficult = 12, startGame()" class="dropdown-item">Media</span></li>
+                        <li><span @click="difficult = 18, startGame()" class="dropdown-item">Difficile</span></li>
+                    </ul>
+                </div>
+                
+                <div class="timer btn btn-danger">{{formattedTimer()}}</div>
             </div>
-
             <div class="btn btn-success d-flex align-items-center justify-content-center" @click="startGame()">🎮 <span class="d-none d-sm-block">Restart Game</span></div>
         </nav>
     </header>
@@ -29,6 +32,21 @@
                 <div class="fw-bold alert m-0">➡ Primi su 
                     <span class="btn btn-success" @click="startGame()">🎮 Restart Game</span>
                     per giocare ancora ⬅
+                </div>
+                <span class="text-danger">oppure fai click fuori da questa allerta per chiuderla</span>
+            </div>
+        </div>
+
+        <div @click="alert_game_over = false" v-if="alert_game_over" class="overlay-alert">
+            <div class="message alert m-0 alert-danger show_alert">
+                <p>
+                    Game Over 😭<br>
+                    Non sei riuscito a completare il gioco in tempo <br>
+                    Forse non sei un grande fan di Teen Wolf 🐺🙄 <br>
+                </p>
+                <div class="fw-bold alert m-0">➡ Primi su 
+                    <span class="btn btn-success" @click="startGame()">🎮 Restart Game</span>
+                    per riprovare ⬅
                 </div>
                 <span class="text-danger">oppure fai click fuori da questa allerta per chiuderla</span>
             </div>
@@ -90,9 +108,49 @@ export default {
             show_alert: false,
             hide_cards: false,
             difficult: 6,
+            timer : null,
+            timer_prevent: false,
+            interval : null,
+            alert_game_over: false,
         } 
     },
+    computed: {
+        activeTimer(){
+            return this.timer;
+        }
+    },
+    watch: {
+        activeTimer(time){
+            if (time == 0) {
+                clearInterval(this.interval);
+                this.alert_game_over = true;
+            }
+        }
+    },
     methods: {
+        //reset
+        resetAlerts(){
+            this.show_alert = false;
+            this.alert_game_over = false;
+        },
+        resetTimer(){
+            this.alert_game_over = false;
+            this.timer_prevent = false;
+            clearInterval(this.interval);
+            this.timer = 180;
+        },
+        resetCards(){
+            this.compared_cards = []; 
+            this.selected_cards = [];
+        },  
+        //game methods
+        formattedTimer(){
+            let minutes = Math.floor(this.timer / 60);
+            let seconds = this.timer % 60;
+            if (seconds < 10) {seconds = `0${seconds}`;}
+            if (minutes < 10) {minutes = `0${minutes}`;}
+            return `${minutes} : ${seconds}`;
+        },
         layoutCards(){
             if (this.difficult == 6) {
                 return 'flip-card-easy';
@@ -103,10 +161,6 @@ export default {
                 return 'flip-card-diff';
             }
         },
-        resetCards(){
-            this.compared_cards = []; 
-            this.selected_cards = [];
-        },
         checkGame(){
             let i = 0;
             this.originalCards.forEach(card => {
@@ -115,6 +169,7 @@ export default {
                 }
             });
             if (i == this.difficult) {
+                clearInterval(this.interval);
                 this.show_alert = true;
             } else {
                 i = 0;
@@ -143,6 +198,7 @@ export default {
             }
         },
         selectCards(card, id, index){
+            this.startTimer();
             if (!card.isGot) {
                 if(this.compared_cards.length < 2){
                     if (!this.selected_cards.includes(index)) {
@@ -172,15 +228,26 @@ export default {
             }
             return array;
         },
+        //start
+        startTimer(){
+            if (!this.timer_prevent) {
+                this.timer_prevent = true;
+                this.interval = setInterval(() => {
+                    this.timer--;
+                }, 1000);
+            }
+        },
         startGame(){
             this.hide_cards = true;
-            this.show_alert = false;
+            this.resetTimer();
+            this.resetAlerts();
+            this.resetCards();
             this.random_cards = [],
             this.originalCards.forEach(card => {
                 card.isGot = false;
             });
-            this.resetCards();
             this.randomCards(this.duplicateCards());
+            //rende le carte di nuovo visibili
             setTimeout(() => {
                 this.hide_cards = false;
             }, 500);
