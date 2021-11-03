@@ -1,12 +1,17 @@
 <template>
 <div>
     <header class="px-5">
-        <nav class="d-flex justify-content-between align-items-center">
-            <a class="navbar-brand text-danger" href="/"><img width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/TeenWolfLogo.png/280px-TeenWolfLogo.png" alt=""></a>
-            <div>
+        <nav class="d-flex justify-content-between align-items-center row">
+            <a class="navbar-brand text-danger col" href="/"><img width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/TeenWolfLogo.png/280px-TeenWolfLogo.png" alt=""></a>
+            <!-- timer -->
+            <div class="col-6 text-center">
+                <div class="timer btn" :class="isActive_timer?'btn-danger':'btn-secondary'">{{formattedTimer()}}</div>
+                <i @click="isActiveTimer()" class="btn timer_on_off fas fa-stopwatch-20 fs-3" :class="isActive_timer? 'text-success' : 'text-danger'"></i>
+            </div>
+             <div class="d-flex align-items-center col justify-content-end">
                 <!-- scegli difficolta' -->
                 <div class="btn">
-                    <span class="btn btn-secondary dropdown-toggle" id="dropdownDifficult" data-bs-toggle="dropdown">
+                    <span class="btn btn-primary dropdown-toggle" id="dropdownDifficult" data-bs-toggle="dropdown">
                         Scegli difficolta'
                     </span>
                     <ul class="dropdown-menu text-center" aria-labelledby="dropdownDifficult">
@@ -15,10 +20,8 @@
                         <li><span @click="difficult = 18, startGame()" class="dropdown-item">Difficile</span></li>
                     </ul>
                 </div>
-                
-                <div class="timer btn btn-danger">{{formattedTimer()}}</div>
+                <div class="btn btn-success d-flex align-items-center justify-content-center" @click="startGame()">🎮 <span class="d-none d-sm-block">Restart Game</span></div>
             </div>
-            <div class="btn btn-success d-flex align-items-center justify-content-center" @click="startGame()">🎮 <span class="d-none d-sm-block">Restart Game</span></div>
         </nav>
     </header>
 
@@ -81,9 +84,9 @@ export default {
         return {
             originalCards : [
                 //FACILE
-                {name: 'Stiles Stilinski', path: 'https://assets.puzzlefactory.pl/puzzle/223/245/original.jpg', id: 1, isGot: false},
-                {name: 'Scott McCall', path: 'https://i.pinimg.com/550x/1c/33/2b/1c332bcd0a305721ff410352429bf317.jpg', id: 2, isGot: false},
-                {name: 'Derek Hale', path: 'http://data.pixiz.com/output/user/frame/preview/api/big/4/4/7/1/2621744_e6616.jpg', id: 3, isGot: false},
+                {name: 'Stiles Stilinski', path: 'https://i.pinimg.com/564x/21/49/44/2149448e805e048c7090b1815fc2ad7c.jpg', id: 1, isGot: false},
+                {name: 'Scott McCall', path: 'https://i.pinimg.com/564x/42/1c/27/421c2705befcff5b6996b6c8c8c802ea.jpg', id: 2, isGot: false},
+                {name: 'Derek Hale', path: 'https://i.pinimg.com/564x/5e/48/1a/5e481a3bc83cf733c818b5e4bdb032de.jpg', id: 3, isGot: false},
                 {name: 'Allison Argent', path: 'https://i.pinimg.com/474x/b1/2b/df/b12bdf82fcd7a6c8088193c289f2495f--allison-argent-hair-alison-argent.jpg', id: 4, isGot: false},
                 {name: 'Lydia Martin', path: 'https://i.pinimg.com/736x/f4/f4/fd/f4f4fda5b2e4940d8c03a33c46b8b661.jpg', id: 5, isGot: false},
                 {name: 'Jackson Whittemore', path: 'https://pbs.twimg.com/profile_images/1289549908790448128/PkASyI5H.jpg', id: 6, isGot: false},
@@ -112,12 +115,13 @@ export default {
             timer_prevent: false,
             interval : null,
             alert_game_over: false,
+            isActive_timer: true,
         } 
     },
     computed: {
         activeTimer(){
             return this.timer;
-        }
+        },
     },
     watch: {
         activeTimer(time){
@@ -125,7 +129,7 @@ export default {
                 clearInterval(this.interval);
                 this.alert_game_over = true;
             }
-        }
+        },
     },
     methods: {
         //reset
@@ -144,6 +148,13 @@ export default {
             this.selected_cards = [];
         },  
         //game methods
+        isActiveTimer(){
+            if (this.isActive_timer) {
+                this.isActive_timer = false;
+            } else {
+                this.isActive_timer = true;
+            }
+        },
         formattedTimer(){
             let minutes = Math.floor(this.timer / 60);
             let seconds = this.timer % 60;
@@ -198,7 +209,9 @@ export default {
             }
         },
         selectCards(card, id, index){
-            this.startTimer();
+            if (this.isActive_timer) {
+                this.startTimer();
+            }
             if (!card.isGot) {
                 if(this.compared_cards.length < 2){
                     if (!this.selected_cards.includes(index)) {
@@ -283,7 +296,6 @@ main {
     align-items: center;
     justify-content: center;
     align-content: center;
-
 }
 .container-card{
     max-width: 1500px;
