@@ -61,8 +61,7 @@
                 v-for="(card, index) in random_cards" :key="card.index">
                 <div class="flip-card-inner" :class="selected_cards.includes(index) || card.isGot ? 'rotate' : ''">
                     <div class="flip-card-front">
-                        <!-- <img class="rounded" src="https://i.pinimg.com/originals/60/0e/13/600e1317548e1716913d8460757dbc02.jpg" alt=""> -->
-                        <img class="rounded" src="https://i.pinimg.com/564x/ba/bb/2b/babb2b12f2bc84b892703b7b30fea911.jpg" alt="">
+                        <img class="rounded" src="https://i.pinimg.com/originals/60/0e/13/600e1317548e1716913d8460757dbc02.jpg" alt="">
                     </div>
 
                     <div v-if="!hide_cards" class="flip-card-back rounded" :class="card.isGot ? 'bg-success' : 'bg-dark'">
