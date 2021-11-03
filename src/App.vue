@@ -1,18 +1,27 @@
 <template>
 <div>
-    <header class="px-5">
+    <!-- ---------------------------------------------------- -->
+    <!-- HEADER -->
+    <!-- ---------------------------------------------------- -->
+    <header class="px-3">
         <nav class="d-flex justify-content-between align-items-center row">
-            <a class="navbar-brand text-danger col" href="/"><img width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/TeenWolfLogo.png/280px-TeenWolfLogo.png" alt=""></a>
+            <a class="navbar-brand text-danger col-1" href="/"><img width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/TeenWolfLogo.png/280px-TeenWolfLogo.png" alt=""></a>
             <!-- timer -->
-            <div class="col-6 text-center">
-                <div class="timer btn" :class="isActive_timer?'btn-danger':'btn-secondary'">{{formattedTimer()}}</div>
-                <i @click="isActiveTimer()" class="btn timer_on_off fas fa-stopwatch-20 fs-3" :class="isActive_timer? 'text-success' : 'text-danger'"></i>
+            <div class="col text-center">
+                <div @click="isActiveTimer()" class="timer btn" :class="isActive_timer?'btn-danger':'btn-secondary'">
+                    {{formattedTimer()}}
+                    <!-- info on timer hover -->
+                    <div class="timer_info alert alert-light">Fai click per mettere <span class="text-success fw-bolder">ON</span> / <span class="text-danger fw-bolder">OFF</span> il timer</div>
+                </div>
+                <!-- alert ON/OFF -->
+                <div v-if="alert_set_timer" class="alert alert-set-timer" :class="isActive_timer? 'alert-warning animation_alert_on' : 'alert-secondary animation_alert_off'">{{isActive_timer? 'Timer Attivato' : 'Timer Disattivato'}}</div>
             </div>
-             <div class="d-flex align-items-center col justify-content-end">
+             <div class="d-flex align-items-center col-1 justify-content-end">
                 <!-- scegli difficolta' -->
                 <div class="btn">
                     <span class="btn btn-primary dropdown-toggle" id="dropdownDifficult" data-bs-toggle="dropdown">
-                        Scegli difficolta'
+                        <span class="d-none d-md-inline">Scegli difficolta'</span> 
+                        <i class="d-md-none fas fa-cogs"></i>
                     </span>
                     <ul class="dropdown-menu text-center" aria-labelledby="dropdownDifficult">
                         <li><span @click="difficult = 6, startGame()" class="dropdown-item">Facile</span></li>
@@ -20,28 +29,36 @@
                         <li><span @click="difficult = 18, startGame()" class="dropdown-item">Difficile</span></li>
                     </ul>
                 </div>
-                <div class="btn btn-success d-flex align-items-center justify-content-center" @click="startGame()">🎮 <span class="d-none d-sm-block">Restart Game</span></div>
+                <!-- restart game -->
+                <div class="btn btn-success d-flex align-items-center justify-content-center" @click="startGame()">🎮<span class="ms-1 d-none d-lg-block">Restart</span></div>
             </div>
         </nav>
     </header>
-
+    <!-- ---------------------------------------------------- -->
+    <!-- MAIN -->
+    <!-- ---------------------------------------------------- -->
     <main class="text-center">
-        <div @click="show_alert = false" v-if="show_alert" class="overlay-alert">
-            <div class="message alert m-0 alert-success show_alert">
+        <!-- alert win -->
+        <div @click="alert_game_win = false" v-if="alert_game_win" class="overlay-alert">
+            <div class="message alert m-0 alert-success alert_game_win">
                 <p>
                     Congratulazioni! Hai trovato tutte le coppie 🎉<br>
                     Sei un vero fan di Teen Wolf 🐺 <br>
                 </p>
-                <div class="fw-bold alert m-0">➡ Primi su 
+                <div class="border border-dark">
+                    Il tuo tempo e' stato di <br> 
+                    <span class="fs-3">{{result_time}}</span>
+                </div>
+                <div class="fw-bold alert">➡ Primi su 
                     <span class="btn btn-success" @click="startGame()">🎮 Restart Game</span>
                     per giocare ancora ⬅
                 </div>
                 <span class="text-danger">oppure fai click fuori da questa allerta per chiuderla</span>
             </div>
         </div>
-
+        <!-- alert game over -->
         <div @click="alert_game_over = false" v-if="alert_game_over" class="overlay-alert">
-            <div class="message alert m-0 alert-danger show_alert">
+            <div class="message alert m-0 alert-danger alert_game_win">
                 <p>
                     Game Over 😭<br>
                     Non sei riuscito a completare il gioco in tempo <br>
@@ -54,7 +71,7 @@
                 <span class="text-danger">oppure fai click fuori da questa allerta per chiuderla</span>
             </div>
         </div>
-
+        <!-- game cards -->
         <div class="cards container-card">
             <div class="flip-card" :class="layoutCards()"
                 @click="selectCards(card, card.id, index)"
@@ -107,14 +124,18 @@ export default {
             random_cards: [],
             compared_cards: [],
             selected_cards: [],
-            show_alert: false,
+            alert_game_win: false,
             hide_cards: false,
             difficult: 6,
             timer : null,
+            minutes: null,
+            seconds: null,
+            result_time: null,
             timer_prevent: false,
             interval : null,
             alert_game_over: false,
             isActive_timer: true,
+            alert_set_timer: true,
         } 
     },
     computed: {
@@ -133,14 +154,14 @@ export default {
     methods: {
         //reset
         resetAlerts(){
-            this.show_alert = false;
+            this.alert_game_win = false;
             this.alert_game_over = false;
         },
         resetTimer(){
             this.alert_game_over = false;
             this.timer_prevent = false;
             clearInterval(this.interval);
-            this.timer = 180;
+            this.timer = 150;
         },
         resetCards(){
             this.compared_cards = []; 
@@ -155,11 +176,13 @@ export default {
             }
         },
         formattedTimer(){
-            let minutes = Math.floor(this.timer / 60);
-            let seconds = this.timer % 60;
-            if (seconds < 10) {seconds = `0${seconds}`;}
-            if (minutes < 10) {minutes = `0${minutes}`;}
-            return `${minutes} : ${seconds}`;
+            this.minutes = Math.floor(this.timer / 60);
+            this.seconds = this.timer % 60;
+            let min = this.minutes;
+            let sec = this.seconds;
+            if (sec < 10) {sec = `0${sec}`;}
+            if (min < 10) {min = `0${min}`;}
+            return `${min} : ${sec}`;
         },
         layoutCards(){
             if (this.difficult == 6) {
@@ -180,7 +203,13 @@ export default {
             });
             if (i == this.difficult) {
                 clearInterval(this.interval);
-                this.show_alert = true;
+                let result_sec = 150 - ((this.minutes * 60) + this.seconds);
+                let min = Math.floor(result_sec / 60);
+                let sec = result_sec % 60;
+                if (sec < 10) {sec = `0${sec}`;}
+                if (min < 10) {min = `0${min}`;}
+                this.result_time = `${min} : ${sec}`;
+                this.alert_game_win = true;
             } else {
                 i = 0;
             }
@@ -443,10 +472,49 @@ main {
     justify-content: center;
     align-items: center;
 }
-.show_alert{
-    animation: show_alert .8s;
-    @keyframes show_alert {
+.alert_game_win{
+    animation: alert_game_win .8s;
+    @keyframes alert_game_win {
         from{opacity: 0; transform: scale(.7);}
     }
+}
+.alert-set-timer{
+    position: absolute;
+    width: 300px;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    opacity: 0;
+}
+.animation_alert_on{
+    animation: alert_on 3s;
+    @keyframes alert_on {
+        0%{opacity: 0;}
+        20%{opacity: 1;}
+        80%{opacity: 1;}
+    }
+}
+.animation_alert_off{
+    animation: alert_off 3s;
+    @keyframes alert_off {
+        0%{opacity: 0;}
+        20%{opacity: 1;}
+        80%{opacity: 1;}
+    }
+}
+
+// timer
+.timer_info{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: .7rem;
+    opacity: 0;
+    transition: .3s ease-in;
+    z-index: 99999;
+}
+.timer:hover .timer_info{
+    opacity: 1;
 }
 </style>
