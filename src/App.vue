@@ -52,7 +52,7 @@
                     <span class="fs-3">{{result_time}}</span>
                 </div>
                 <div class="fw-bold alert">➡ Primi su 
-                    <span class="btn btn-success" @click="startGame()">🎮 Restart Game</span>
+                    <span class="btn btn-success" @click="startGame()">🎮 Restart</span>
                     per giocare ancora ⬅
                 </div>
                 <span class="text-danger">oppure fai click fuori da questa allerta per chiuderla</span>
@@ -67,7 +67,7 @@
                     Forse non sei un grande fan di Teen Wolf 🐺🙄 <br>
                 </p>
                 <div class="fw-bold alert m-0">➡ Primi su 
-                    <span class="btn btn-success" @click="startGame()">🎮 Restart Game</span>
+                    <span class="btn btn-success" @click="startGame()">🎮 Restart</span>
                     per riprovare ⬅
                 </div>
                 <span class="text-danger">oppure fai click fuori da questa allerta per chiuderla</span>
