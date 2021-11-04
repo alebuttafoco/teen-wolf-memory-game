@@ -8,13 +8,11 @@
             <a class="navbar-brand text-danger col-1" href="/"><img width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/TeenWolfLogo.png/280px-TeenWolfLogo.png" alt=""></a>
             <!-- timer -->
             <div class="col text-center">
-                <div @click="isActiveTimer()" class="timer btn" :class="isActive_timer?'btn-danger':'btn-secondary'">
+                <div @click="isActive_timer = !isActive_timer" class="timer btn" :class="isActive_timer?'btn-danger':'btn-secondary'">
                     {{formattedTimer()}}
                     <!-- info on timer hover -->
-                    <div class="timer_info alert alert-light">Fai click per mettere <span class="text-success fw-bolder">ON</span> / <span class="text-danger fw-bolder">OFF</span> il timer</div>
+                    <div class="timer_info alert alert-light">Fai click per mettere ON/OFF il timer</div>
                 </div>
-                <!-- alert ON/OFF -->
-                <div v-if="alert_set_timer" class="alert alert-set-timer" :class="isActive_timer? 'alert-warning animation_alert_on' : 'alert-secondary animation_alert_off'">{{isActive_timer? 'Timer Attivato' : 'Timer Disattivato'}}</div>
             </div>
              <div class="d-flex align-items-center col-1 justify-content-end">
                 <!-- scegli difficolta' -->
@@ -38,6 +36,10 @@
     <!-- MAIN -->
     <!-- ---------------------------------------------------- -->
     <main class="text-center">
+        <!-- progression bar timer -->
+        <div class="progress-bar rounded bg-dark">
+            <div class="percentage rounded" :class="colorProgressBar()" :style="{width: progress_bar + '%'}"></div>
+        </div>
         <!-- alert win -->
         <div @click="alert_game_win = false" v-if="alert_game_win" class="overlay-alert">
             <div class="message alert m-0 alert-success alert_game_win">
@@ -128,6 +130,7 @@ export default {
             hide_cards: false,
             difficult: 6,
             timer : null,
+            progress_bar: 100,
             minutes: null,
             seconds: null,
             result_time: null,
@@ -135,7 +138,6 @@ export default {
             interval : null,
             alert_game_over: false,
             isActive_timer: true,
-            alert_set_timer: true,
         } 
     },
     computed: {
@@ -145,6 +147,7 @@ export default {
     },
     watch: {
         activeTimer(time){
+            this.progress_bar = ((time / 150) * 100).toFixed(2);
             if (time == 0) {
                 clearInterval(this.interval);
                 this.alert_game_over = true;
@@ -168,11 +171,13 @@ export default {
             this.selected_cards = [];
         },  
         //game methods
-        isActiveTimer(){
-            if (this.isActive_timer) {
-                this.isActive_timer = false;
+        colorProgressBar(){
+            if (this.progress_bar > 40) {
+                return 'bg-primary';
+            } else if (this.progress_bar > 10){
+                return 'bg-warning';
             } else {
-                this.isActive_timer = true;
+                return 'bg-danger';
             }
         },
         formattedTimer(){
@@ -186,12 +191,12 @@ export default {
         },
         layoutCards(){
             if (this.difficult == 6) {
-                return 'flip-card-easy';
+                return 'flip-card-easy animation_cards_easy';
             }
             else if (this.difficult == 12){
-                return 'flip-card-mid';
+                return 'flip-card-mid animation_cards_mid';
             } else if(this.difficult == 18){
-                return 'flip-card-diff';
+                return 'flip-card-diff animation_cards_diff';
             }
         },
         checkGame(){
@@ -301,6 +306,7 @@ export default {
 </script>
 
 <style lang='scss'>
+
 *{
     box-sizing: border-box;
     padding: 0;
@@ -328,7 +334,28 @@ main {
 .container-card{
     max-width: 1500px;
 }
-
+// animation cards (bad solution)
+.animation_cards_easy {
+    animation: easy 1s;
+    @keyframes easy {
+        from{opacity: 0; transform: scale(.8);}
+        25%{opacity: 0; transform: scale(.8);}
+    }
+}
+.animation_cards_mid {
+    animation: mid 1s;
+    @keyframes mid {
+        from{opacity: 0; transform: scale(.8);}
+        25%{opacity: 0; transform: scale(.9);}
+    }
+}
+.animation_cards_diff {
+    animation: diff 1s;
+    @keyframes diff {
+        from{opacity: 0; transform: scale(.8);}
+        25%{opacity: 0; transform: scale(.9);}
+    }
+}
 // FLIP CARD
 .flip-card-easy{
     margin: .5rem 1rem;
@@ -478,31 +505,6 @@ main {
         from{opacity: 0; transform: scale(.7);}
     }
 }
-.alert-set-timer{
-    position: absolute;
-    width: 300px;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-    opacity: 0;
-}
-.animation_alert_on{
-    animation: alert_on 3s;
-    @keyframes alert_on {
-        0%{opacity: 0;}
-        20%{opacity: 1;}
-        80%{opacity: 1;}
-    }
-}
-.animation_alert_off{
-    animation: alert_off 3s;
-    @keyframes alert_off {
-        0%{opacity: 0;}
-        20%{opacity: 1;}
-        80%{opacity: 1;}
-    }
-}
 
 // timer
 .timer_info{
@@ -516,5 +518,15 @@ main {
 }
 .timer:hover .timer_info{
     opacity: 1;
+}
+.progress-bar {
+    width: 99%;
+    margin: auto;
+    height: 10px;
+    .percentage{
+        height: inherit;
+        transition: 2s;
+    }
+
 }
 </style>
