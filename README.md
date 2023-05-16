@@ -4,4 +4,4 @@ Per realizzare questo progetto ho utilizzato Vue CLI e Bootstrap 5.
 
 Questo il link per provare a giocare 👇
 
-## https://alebuttafoco-memory-teenwolf.netlify.app/
+## [https://alebuttafoco-memory-teenwolf.netlify.app/](https://alebuttafoco-memory.netlify.app)
